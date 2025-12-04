@@ -1,5 +1,10 @@
 [build]
-  command = "flutter pub get && flutter build web --release"
+  # Para Netlify, você precisa fazer build localmente e fazer deploy
+  # Ou usar GitHub Actions para fazer build e deploy automático
+  # 
+  # Para deploy manual dos arquivos já compilados:
+  # 1. Execute: flutter build web --release
+  # 2. Faça deploy da pasta build/web no Netlify
   publish = "build/web"
 
 [[redirects]]
@@ -7,10 +12,7 @@
   to = "/index.html"
   status = 200
 
-[build.environment]
-  FLUTTER_VERSION = "3.24.0"
-  
-# Headers para melhor performance
+# Headers para melhor performance e segurança
 [[headers]]
   for = "/*"
   [headers.values]
@@ -27,3 +29,8 @@
   for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    
+[[headers]]
+  for = "/*.wasm"
+  [headers.values]
+    Content-Type = "application/wasm"
