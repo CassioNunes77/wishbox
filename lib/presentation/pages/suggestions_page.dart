@@ -215,14 +215,41 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWeb = screenWidth > 600;
+    final crossAxisCount = isWeb ? 4 : 1;
+    
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Sugestões de presentes'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Text(
+          'WishBox',
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 20,
+            color: AppTheme.textPrimary,
+            letterSpacing: 0.5,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadSuggestions,
-            tooltip: 'Gerar novas opções',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Perfil em breve! 👤'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.person_outline_rounded,
+              color: AppTheme.textPrimary,
+              size: 24,
+            ),
+            tooltip: 'Perfil',
           ),
         ],
       ),
@@ -231,8 +258,11 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
           children: [
             // Filtro minimalista - apenas ícone de ordenar
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: AppTheme.surfaceColor,
+              padding: EdgeInsets.symmetric(
+                horizontal: isWeb ? 32 : 16,
+                vertical: 12,
+              ),
+              color: Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -259,7 +289,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
               ),
             ),
             
-            // Lista de sugestões
+            // Grid de sugestões (4 colunas no web, 1 no mobile)
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -281,8 +311,14 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                             ],
                           ),
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(16),
+                      : GridView.builder(
+                          padding: EdgeInsets.all(isWeb ? 24 : 16),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: isWeb ? 20 : 16,
+                            mainAxisSpacing: isWeb ? 20 : 16,
+                            childAspectRatio: isWeb ? 0.65 : 1.2,
+                          ),
                           itemCount: _filteredSuggestions.length,
                           itemBuilder: (context, index) {
                             final suggestion = _filteredSuggestions[index];
