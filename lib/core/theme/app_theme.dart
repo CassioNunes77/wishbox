@@ -66,14 +66,8 @@ class AppTheme {
           color: textPrimary,
         ),
       ),
-      cardTheme: CardTheme(
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Estilo marketplace
-        ),
-        color: surfaceColor,
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
+      // cardTheme removido - incompatível com Flutter 3.24
+      // Cards usarão estilo padrão ou podem ser customizados individualmente
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
