@@ -66,7 +66,7 @@ class AppTheme {
           color: textPrimary,
         ),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8), // Estilo marketplace
