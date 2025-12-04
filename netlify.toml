@@ -1,10 +1,6 @@
 [build]
-  # Para Netlify, você precisa fazer build localmente e fazer deploy
-  # Ou usar GitHub Actions para fazer build e deploy automático
-  # 
-  # Para deploy manual dos arquivos já compilados:
-  # 1. Execute: flutter build web --release
-  # 2. Faça deploy da pasta build/web no Netlify
+  # Netlify vai fazer build automático via GitHub Actions
+  # O GitHub Actions faz o build do Flutter e faz deploy no Netlify
   publish = "build/web"
 
 [[redirects]]
