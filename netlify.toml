@@ -1,6 +1,9 @@
+# Netlify não deve fazer build - GitHub Actions faz tudo
+# Deixe Build command VAZIO no Netlify Dashboard
+
 [build]
-  # Netlify vai fazer build automático via GitHub Actions
-  # O GitHub Actions faz o build do Flutter e faz deploy no Netlify
+  # Build command vazio - GitHub Actions faz o build
+  command = "echo 'Build feito pelo GitHub Actions'"
   publish = "build/web"
 
 [[redirects]]
