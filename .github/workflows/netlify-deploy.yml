@@ -23,17 +23,44 @@ jobs:
       
       - name: Get dependencies
         run: flutter pub get
-      
+        
+      - name: Verify Flutter
+        run: flutter --version
+        
       - name: Build web
         run: flutter build web --release
+        
+      - name: Verify build files
+        run: |
+          echo "=== Verificando arquivos buildados ==="
+          ls -la build/web/ | head -20
+          echo "=== Verificando index.html ==="
+          test -f build/web/index.html && echo "✅ index.html existe" || echo "❌ index.html NÃO existe"
+          echo "=== Verificando flutter_bootstrap.js ==="
+          test -f build/web/flutter_bootstrap.js && echo "✅ flutter_bootstrap.js existe" || echo "❌ flutter_bootstrap.js NÃO existe"
+          echo "=== Verificando main.dart.js ==="
+          test -f build/web/main.dart.js && echo "✅ main.dart.js existe" || echo "❌ main.dart.js NÃO existe"
       
-      - name: List build files
-        run: ls -la build/web/ | head -20
+      - name: Check Netlify secrets
+        run: |
+          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ]; then
+            echo "❌ NETLIFY_AUTH_TOKEN não está configurado!"
+            exit 1
+          else
+            echo "✅ NETLIFY_AUTH_TOKEN está configurado"
+          fi
+          
+          if [ -z "${{ secrets.NETLIFY_SITE_ID }}" ]; then
+            echo "❌ NETLIFY_SITE_ID não está configurado!"
+            exit 1
+          else
+            echo "✅ NETLIFY_SITE_ID está configurado"
+          fi
       
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master
         with:
-          args: deploy --prod --dir=build/web
+          args: deploy --prod --dir=build/web --message="Deploy from GitHub Actions"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
