@@ -6,6 +6,7 @@ import '../../domain/entities/product.dart';
 import '../../domain/entities/gift_suggestion.dart';
 import '../widgets/product_card.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/top_nav_bar.dart';
 import '../../data/mock/mock_data_service.dart';
 
 class SuggestionsPage extends StatefulWidget {
@@ -221,38 +222,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'WishBox',
-          style: TextStyle(
-            fontWeight: FontWeight.w400,
-            fontSize: 20,
-            color: AppTheme.textPrimary,
-            letterSpacing: 0.5,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Perfil em breve! 👤'),
-                  duration: Duration(seconds: 1),
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.person_outline_rounded,
-              color: AppTheme.textPrimary,
-              size: 24,
-            ),
-            tooltip: 'Perfil',
-          ),
-        ],
-      ),
+      appBar: TopNavBar(currentRoute: '/suggestions'),
       body: SafeArea(
         child: Column(
           children: [
@@ -340,7 +310,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentRoute: '/suggestions'),
+      bottomNavigationBar: isWeb ? null : const BottomNavBar(currentRoute: '/suggestions'),
     );
   }
 }

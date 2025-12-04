@@ -4,6 +4,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/services/favorites_service.dart';
 import '../../domain/entities/product.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/top_nav_bar.dart';
 import '../widgets/product_card.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -63,20 +64,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWeb = screenWidth > 600;
+    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Favoritos',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: AppTheme.textPrimary,
-            fontFamily: 'Roboto',
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: TopNavBar(currentRoute: '/favorites'),
       body: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -158,7 +150,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     },
                   ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentRoute: '/favorites'),
+      bottomNavigationBar: isWeb ? null : const BottomNavBar(currentRoute: '/favorites'),
     );
   }
 }

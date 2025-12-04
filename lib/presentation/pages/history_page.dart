@@ -5,6 +5,7 @@ import '../../data/mock/mock_data_service.dart';
 import '../../domain/entities/gift_search_session.dart';
 import '../../core/constants/app_constants.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/top_nav_bar.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
@@ -20,10 +21,11 @@ class HistoryPage extends StatelessWidget {
       debugPrint('Erro ao carregar histórico: $e');
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWeb = screenWidth > 600;
+    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Minhas buscas e presentes'),
-      ),
+      appBar: TopNavBar(currentRoute: '/history'),
       body: SafeArea(
         child: sessions.isEmpty
             ? Center(
@@ -104,7 +106,7 @@ class HistoryPage extends StatelessWidget {
                 },
               ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentRoute: '/history'),
+      bottomNavigationBar: isWeb ? null : const BottomNavBar(currentRoute: '/history'),
     );
   }
 }

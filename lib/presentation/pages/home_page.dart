@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/app_constants.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/top_nav_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -65,38 +66,7 @@ class _HomePageState extends State<HomePage> {
     
     return Scaffold(
       backgroundColor: Colors.white, // ChatGPT style - fundo branco
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'WishBox',
-          style: TextStyle(
-            fontWeight: FontWeight.w400,
-            fontSize: 20,
-            color: AppTheme.textPrimary,
-            letterSpacing: 0.5,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Perfil em breve! 👤'),
-                  duration: Duration(seconds: 1),
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.person_outline_rounded,
-              color: AppTheme.textPrimary,
-              size: 24,
-            ),
-            tooltip: 'Perfil',
-          ),
-        ],
-      ),
+      appBar: TopNavBar(currentRoute: '/home'),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -438,7 +408,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentRoute: '/home'),
+      bottomNavigationBar: isWeb ? null : const BottomNavBar(currentRoute: '/home'),
     );
   }
 

@@ -70,6 +70,10 @@ class _ProductCardState extends State<ProductCard>
           scale: _scaleAnimation.value,
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
+            constraints: const BoxConstraints(
+              minHeight: 0,
+              maxHeight: double.infinity,
+            ),
             decoration: BoxDecoration(
               color: AppTheme.surfaceColor,
               borderRadius: BorderRadius.circular(8),
@@ -88,9 +92,10 @@ class _ProductCardState extends State<ProductCard>
               onTapCancel: () => _animationController.reverse(),
               borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // Header com rating e botão salvar
                       Row(
@@ -175,8 +180,9 @@ class _ProductCardState extends State<ProductCard>
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: Container(
-                          height: 220,
+                          height: 180,
                           width: double.infinity,
+                          constraints: const BoxConstraints(maxHeight: 180),
                           decoration: BoxDecoration(
                             color: AppTheme.dividerColor,
                             borderRadius: BorderRadius.circular(6),
@@ -188,7 +194,7 @@ class _ProductCardState extends State<ProductCard>
                                   widget.product.imageUrl,
                                   fit: BoxFit.cover,
                                   width: double.infinity,
-                                  height: 220,
+                                  height: 180,
                                   errorBuilder: (context, error, stackTrace) {
                                     return _buildPlaceholderImage();
                                   },
@@ -252,7 +258,7 @@ class _ProductCardState extends State<ProductCard>
                       Text(
                         widget.product.name,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary,
                           height: 1.3,
@@ -260,7 +266,7 @@ class _ProductCardState extends State<ProductCard>
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
 
                       // Preço
                       Row(
@@ -269,7 +275,7 @@ class _ProductCardState extends State<ProductCard>
                           Text(
                             AppConstants.currencySymbol,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: AppTheme.primaryColor,
                             ),
@@ -277,7 +283,7 @@ class _ProductCardState extends State<ProductCard>
                           Text(
                             ' ${widget.product.price.toStringAsFixed(2)}',
                             style: const TextStyle(
-                              fontSize: 28,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: AppTheme.primaryColor,
                               letterSpacing: -0.5,
@@ -285,17 +291,17 @@ class _ProductCardState extends State<ProductCard>
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       // Tags
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: widget.product.tags.take(3).map((tag) {
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: widget.product.tags.take(2).map((tag) {
                           return Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                              horizontal: 10,
+                              vertical: 4,
                             ),
                             decoration: BoxDecoration(
                               color: AppTheme.primaryColor.withOpacity(0.08),
@@ -308,19 +314,21 @@ class _ProductCardState extends State<ProductCard>
                             child: Text(
                               tag,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w500,
                                 color: AppTheme.primaryColor,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           );
                         }).toList(),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       // Por que combina
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryColor.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(6),
@@ -333,26 +341,27 @@ class _ProductCardState extends State<ProductCard>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: AppTheme.primaryColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Icon(
                                 Icons.auto_awesome_rounded,
-                                size: 20,
+                                size: 16,
                                 color: AppTheme.primaryColor,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
                                     'Por que combina',
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                       color: AppTheme.primaryColor,
                                     ),
@@ -361,10 +370,12 @@ class _ProductCardState extends State<ProductCard>
                                   Text(
                                     widget.reasonText,
                                     style: const TextStyle(
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: AppTheme.textSecondary,
-                                      height: 1.4,
+                                      height: 1.3,
                                     ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
@@ -372,9 +383,9 @@ class _ProductCardState extends State<ProductCard>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
 
-                      // Botões de ação
+                      // Botões de ação compactos
                       Row(
                         children: [
                           Expanded(
@@ -389,7 +400,7 @@ class _ProductCardState extends State<ProductCard>
                               color: AppTheme.successColor,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: _buildActionButton(
                               icon: Icons.thumb_down_outlined,
@@ -400,7 +411,7 @@ class _ProductCardState extends State<ProductCard>
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
 
                       // Botão Ver na loja
                       SizedBox(
@@ -409,21 +420,22 @@ class _ProductCardState extends State<ProductCard>
                           onPressed: () {
                             // Abrir link de afiliado
                           },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                          child: Row(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.shopping_bag_rounded, size: 20),
-                              SizedBox(width: 8),
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.shopping_bag_rounded, size: 18),
+                              SizedBox(width: 6),
                               Text(
                                 'Ver na loja',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -467,8 +479,8 @@ class _ProductCardState extends State<ProductCard>
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
                               color: isActive
                                   ? color.withOpacity(0.1)
@@ -481,19 +493,24 @@ class _ProductCardState extends State<ProductCard>
                             ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
-                size: 18,
+                size: 16,
                 color: isActive ? color : AppTheme.textSecondary,
               ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isActive ? color : AppTheme.textSecondary,
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isActive ? color : AppTheme.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
