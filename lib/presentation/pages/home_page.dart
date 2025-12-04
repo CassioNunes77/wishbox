@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/services/search_history_service.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/top_nav_bar.dart';
 
@@ -33,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _performSearch() {
+  void _performSearch() async {
     final query = _searchController.text.trim();
     if (query.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,6 +45,15 @@ class _HomePageState extends State<HomePage> {
       );
       return;
     }
+
+    // Salvar no histórico
+    await SearchHistoryService.saveSearch(
+      query: query,
+      isSelfGift: _isSelfGift,
+      minPrice: _minPrice,
+      maxPrice: _maxPrice,
+      giftTypes: _selectedGiftTypes.toList(),
+    );
 
     context.go('/loading-profile');
   }
