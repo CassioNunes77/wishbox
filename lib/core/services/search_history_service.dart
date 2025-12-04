@@ -127,7 +127,7 @@ class SearchHistoryService {
           descriptionRaw: historyEntry['query'] ?? '',
           interests: [],
           personalityTags: [],
-          giftStylePriority: null,
+          giftStylePriority: 'Geral', // Campo obrigatório
           constraints: [],
           createdAt: DateTime.parse(historyEntry['createdAt'] ?? DateTime.now().toIso8601String()),
         ),
