@@ -5,6 +5,9 @@ on:
     branches:
       - main
   workflow_dispatch:
+  schedule:
+    # Roda automaticamente todo dia às 2h (fallback)
+    - cron: '0 2 * * *'
 
 jobs:
   build-and-deploy:
