@@ -55,7 +55,19 @@ class _HomePageState extends State<HomePage> {
       giftTypes: _selectedGiftTypes.toList(),
     );
 
-    context.go('/loading-profile');
+    // Passar a query na URL para o loading-profile
+    final uri = Uri(
+      path: '/loading-profile',
+      queryParameters: {
+        'query': query,
+        'isSelfGift': _isSelfGift.toString(),
+        'minPrice': _minPrice.toString(),
+        'maxPrice': _maxPrice.toString(),
+        if (_selectedGiftTypes.isNotEmpty)
+          'giftTypes': _selectedGiftTypes.join(','),
+      },
+    );
+    context.go(uri.toString());
   }
 
   void _toggleGiftType(String type) {

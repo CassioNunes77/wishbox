@@ -5,7 +5,20 @@ import '../../core/theme/app_theme.dart';
 import '../widgets/loading_indicator.dart';
 
 class LoadingProfilePage extends StatefulWidget {
-  const LoadingProfilePage({super.key});
+  final String? query;
+  final bool isSelfGift;
+  final double minPrice;
+  final double maxPrice;
+  final List<String> giftTypes;
+
+  const LoadingProfilePage({
+    super.key,
+    this.query,
+    this.isSelfGift = false,
+    this.minPrice = 0.0,
+    this.maxPrice = 1000.0,
+    this.giftTypes = const [],
+  });
 
   @override
   State<LoadingProfilePage> createState() => _LoadingProfilePageState();
@@ -35,10 +48,22 @@ class _LoadingProfilePageState extends State<LoadingProfilePage> {
             _currentStep++;
           } else {
             timer.cancel();
-            // Navegar para sugestões após um breve delay
+            // Navegar para sugestões com os parâmetros da busca
             Future.delayed(const Duration(seconds: 1), () {
               if (mounted) {
-                context.go('/suggestions');
+                final uri = Uri(
+                  path: '/suggestions',
+                  queryParameters: {
+                    if (widget.query != null && widget.query!.isNotEmpty)
+                      'query': widget.query!,
+                    'isSelfGift': widget.isSelfGift.toString(),
+                    'minPrice': widget.minPrice.toString(),
+                    'maxPrice': widget.maxPrice.toString(),
+                    if (widget.giftTypes.isNotEmpty)
+                      'giftTypes': widget.giftTypes.join(','),
+                  },
+                );
+                context.go(uri.toString());
               }
             });
           }
@@ -56,61 +81,66 @@ class _LoadingProfilePageState extends State<LoadingProfilePage> {
         title: const Text('Gerando perfil'),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Indicador de loading
-              const LoadingIndicator(
-                message: 'Nossa IA está analisando...',
-              ),
-              const SizedBox(height: 48),
-              
-              // Passos
-              Column(
-                children: List.generate(_steps.length, (index) {
-                  final isCompleted = index < _currentStep;
-                  final isCurrent = index == _currentStep;
-                  
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: isCompleted
-                                ? AppTheme.successColor
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Indicador de loading
+                const LoadingIndicator(
+                  message: 'Nossa IA está analisando...',
+                ),
+                const SizedBox(height: 48),
+                
+                // Passos (centralizados)
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: List.generate(_steps.length, (index) {
+                    final isCompleted = index < _currentStep;
+                    final isCurrent = index == _currentStep;
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isCompleted
+                                  ? AppTheme.successColor
+                                  : isCurrent
+                                      ? AppTheme.primaryColor
+                                      : AppTheme.textLight,
+                            ),
+                            child: isCompleted
+                                ? const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 20,
+                                  )
                                 : isCurrent
-                                    ? AppTheme.primaryColor
-                                    : AppTheme.textLight,
-                          ),
-                          child: isCompleted
-                              ? const Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 20,
-                                )
-                              : isCurrent
-                                  ? const SizedBox(
-                                      width: 32,
-                                      height: 32,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
+                                    ? const SizedBox(
+                                        width: 32,
+                                        height: 32,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  : null,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
+                                      )
+                                    : null,
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
                             _steps[index],
+                            textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                   color: isCompleted || isCurrent
                                       ? AppTheme.textPrimary
@@ -120,13 +150,13 @@ class _LoadingProfilePageState extends State<LoadingProfilePage> {
                                       : FontWeight.normal,
                                 ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ],
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -10,6 +10,9 @@ import '../../presentation/pages/suggestions_page.dart';
 import '../../presentation/pages/history_page.dart';
 import '../../presentation/pages/favorites_page.dart';
 import '../../presentation/pages/product_details_page.dart';
+import '../../presentation/pages/profile_page.dart';
+import '../../presentation/pages/admin_page.dart';
+import '../../presentation/pages/admin_debug_page.dart';
 import '../theme/app_theme.dart';
 
 class AppRouter {
@@ -101,12 +104,34 @@ class AppRouter {
       GoRoute(
         path: '/loading-profile',
         name: 'loading-profile',
-        builder: (context, state) => const LoadingProfilePage(),
+        builder: (context, state) {
+          // Extrair parâmetros da URL
+          final queryParams = state.uri.queryParameters;
+          return LoadingProfilePage(
+            query: queryParams['query'],
+            isSelfGift: queryParams['isSelfGift'] == 'true',
+            minPrice: double.tryParse(queryParams['minPrice'] ?? '0') ?? 0.0,
+            maxPrice: double.tryParse(queryParams['maxPrice'] ?? '1000') ?? 1000.0,
+            giftTypes: queryParams['giftTypes']?.split(',') ?? [],
+          );
+        },
       ),
       GoRoute(
         path: '/suggestions',
         name: 'suggestions',
-        builder: (context, state) => const SuggestionsPage(),
+        builder: (context, state) {
+          // Extrair parâmetros da URL
+          final queryParams = state.uri.queryParameters;
+          return SuggestionsPage(
+            query: queryParams['query'],
+            isSelfGift: queryParams['isSelfGift'] == 'true',
+            minPrice: double.tryParse(queryParams['minPrice'] ?? '0') ?? 0.0,
+            maxPrice: double.tryParse(queryParams['maxPrice'] ?? '1000') ?? 1000.0,
+            giftTypes: queryParams['giftTypes']?.split(',') ?? [],
+            relationType: queryParams['relationType'],
+            occasion: queryParams['occasion'],
+          );
+        },
       ),
       GoRoute(
         path: '/history',
@@ -125,6 +150,21 @@ class AppRouter {
           final productId = state.uri.queryParameters['id'] ?? '';
           return ProductDetailsPage(productId: productId);
         },
+      ),
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: '/admin',
+        name: 'admin',
+        builder: (context, state) => const AdminPage(),
+      ),
+      GoRoute(
+        path: '/admin/debug',
+        name: 'admin-debug',
+        builder: (context, state) => const AdminDebugPage(),
       ),
     ],
     );
