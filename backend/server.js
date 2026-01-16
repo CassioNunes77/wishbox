@@ -30,6 +30,7 @@ app.get('/api/search', async (req, res) => {
         ? affiliateUrl.substring(0, affiliateUrl.length - 1)
         : affiliateUrl;
       const encodedQuery = encodeURIComponent(query);
+      // Tentar diferentes formatos de URL
       searchUrl = `${baseUrl}/busca/${encodedQuery}`;
     } else {
       const encodedQuery = encodeURIComponent(query);
@@ -37,6 +38,11 @@ app.get('/api/search', async (req, res) => {
     }
 
     console.log(`[${new Date().toISOString()}] URL de busca: ${searchUrl}`);
+    
+    // Adicionar delay aleatório para parecer mais humano (1-3 segundos)
+    const randomDelay = Math.floor(Math.random() * 2000) + 1000;
+    console.log(`[${new Date().toISOString()}] Aguardando ${randomDelay}ms antes da requisição...`);
+    await new Promise(resolve => setTimeout(resolve, randomDelay));
 
     // Fazer requisição HTTP com headers mais completos para evitar bloqueio
     const response = await axios.get(searchUrl, {
@@ -49,10 +55,15 @@ app.get('/api/search', async (req, res) => {
         'Upgrade-Insecure-Requests': '1',
         'Sec-Fetch-Dest': 'document',
         'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-User': '?1',
         'Cache-Control': 'max-age=0',
         'Referer': 'https://www.magazineluiza.com.br/',
+        'Origin': 'https://www.magazineluiza.com.br',
+        'DNT': '1',
+        'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
       },
       timeout: 20000,
       maxRedirects: 5,
