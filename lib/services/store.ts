@@ -209,6 +209,10 @@ export class StoreService {
     return finalUrl;
   }
 
+  // TODO: REMOVER TESTE - Link de afiliado temporário para teste
+  // Para remover: delete esta constante TEST_AFFILIATE_URL e use string vazia
+  private static readonly TEST_AFFILIATE_URL = 'https://www.magazinevoce.com.br/elislecio/';
+
   /**
    * Lojas padrão (para inicialização)
    */
@@ -219,7 +223,7 @@ export class StoreService {
         id: 'magazine_luiza',
         name: 'magazine_luiza',
         displayName: 'Magazine Luiza',
-        affiliateUrlTemplate: 'https://www.magazinevoce.com.br/elislecio',
+        affiliateUrlTemplate: this.TEST_AFFILIATE_URL, // TODO: REMOVER TESTE - Usar string vazia quando não precisar mais
         isActive: true,
         createdAt: now,
       },
