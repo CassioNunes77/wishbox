@@ -32,16 +32,16 @@ export class ApiService {
         }
         apiUrl = `${baseUrl}/api/search`;
         console.log('=== ApiService: Using external backend:', apiUrl);
-      } else if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
-        // Em desenvolvimento local sem backend URL configurado, usar localhost:3001
-        // Se o backend estiver em outra porta, configurar NEXT_PUBLIC_BACKEND_URL
-        const port = process.env.NEXT_PUBLIC_DEV_PORT || '3001';
-        apiUrl = `http://localhost:${port}/api/search`;
-        console.log('=== ApiService: Using local development backend:', apiUrl);
       } else {
-        // Em produção no Netlify, usar função serverless
+        // Usar /api/search sempre (Next.js API route em dev, Netlify Function em prod)
+        // Em desenvolvimento: app/api/search/route.ts faz proxy para backend local (porta 3001)
+        // Em produção: netlify.toml redireciona para Netlify Function
         apiUrl = '/api/search';
-        console.log('=== ApiService: Using Netlify Function:', apiUrl);
+        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+          console.log('=== ApiService: Using Next.js API route (dev - proxy to localhost:3001):', apiUrl);
+        } else {
+          console.log('=== ApiService: Using Netlify Function (production):', apiUrl);
+        }
       }
       
       // Fazer a requisição
