@@ -19,10 +19,13 @@ struct AppConstants {
     }
     
     // API Endpoint
+    // Em produção: usa função Netlify (URL completa do Netlify)
+    // Em desenvolvimento: usa backend separado se configurado
     static var apiSearchUrl: String {
         if backendBaseUrl.isEmpty {
             // Produção: usar função Netlify
-            // Será substituído pela URL completa do Netlify
+            // IMPORTANTE: Atualizar com a URL real do seu Netlify
+            // Ou usar variável de ambiente no build settings
             return "https://wish2box.netlify.app/api/search"
         } else {
             // Desenvolvimento: usar backend separado
