@@ -80,15 +80,15 @@ class StoreService {
     /// Lojas padrão (para inicialização)
     // TODO: REMOVER TESTE - Link de afiliado temporário para teste
     // Para remover: delete esta constante TEST_AFFILIATE_URL e use string vazia
-    private let TEST_AFFILIATE_URL = "https://www.magazinevoce.com.br/elislecio/"
+    private let TEST_AFFILIATE_URL = "https://www.mercadolivre.com.br/social/elislecio"
     
     private func getDefaultStores() -> [AffiliateStore] {
         let now = ISO8601DateFormatter().string(from: Date())
         return [
             AffiliateStore(
-                id: "magazine_luiza",
-                name: "magazine_luiza",
-                displayName: "Magazine Luiza",
+                id: "mercado_livre",
+                name: "mercado_livre",
+                displayName: "Mercado Livre",
                 affiliateUrlTemplate: TEST_AFFILIATE_URL, // TODO: REMOVER TESTE - Usar string vazia quando não precisar mais
                 apiEndpoint: nil,
                 isActive: true,
