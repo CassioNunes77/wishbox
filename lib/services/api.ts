@@ -33,9 +33,9 @@ export class ApiService {
         apiUrl = `${baseUrl}/api/search`;
         console.log('=== ApiService: Using external backend:', apiUrl);
       } else if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
-        // Em desenvolvimento local sem backend URL configurado, usar localhost:3000
-        // Se estiver rodando na porta 3001, ajustar conforme necessário
-        const port = process.env.NEXT_PUBLIC_DEV_PORT || '3000';
+        // Em desenvolvimento local sem backend URL configurado, usar localhost:3001
+        // Se o backend estiver em outra porta, configurar NEXT_PUBLIC_BACKEND_URL
+        const port = process.env.NEXT_PUBLIC_DEV_PORT || '3001';
         apiUrl = `http://localhost:${port}/api/search`;
         console.log('=== ApiService: Using local development backend:', apiUrl);
       } else {
