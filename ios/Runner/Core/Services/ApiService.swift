@@ -93,11 +93,30 @@ class ApiService {
             }
         } catch let error as DecodingError {
             print("=== ApiService: Decoding error: \(error)")
+            if case .keyNotFound(let key, let context) = error {
+                print("=== ApiService: Missing key '\(key.stringValue)' in \(context.debugDescription)")
+            }
+            if case .typeMismatch(let type, let context) = error {
+                print("=== ApiService: Type mismatch for type \(type) in \(context.debugDescription)")
+            }
+            if case .valueNotFound(let type, let context) = error {
+                print("=== ApiService: Value not found for type \(type) in \(context.debugDescription)")
+            }
+            if case .dataCorrupted(let context) = error {
+                print("=== ApiService: Data corrupted: \(context.debugDescription)")
+                if let dataString = String(data: data, encoding: .utf8) {
+                    print("=== ApiService: Response data: \(dataString.prefix(500))")
+                }
+            }
             throw ApiError.decodingError
         } catch let error as ApiError {
             throw error
         } catch {
-            print("=== ApiService: Network error: \(error)")
+            print("=== ApiService: Network error: \(error.localizedDescription)")
+            if let urlError = error as? URLError {
+                print("=== ApiService: URLError code: \(urlError.code.rawValue)")
+                print("=== ApiService: URLError description: \(urlError.localizedDescription)")
+            }
             throw ApiError.networkError(error)
         }
     }
