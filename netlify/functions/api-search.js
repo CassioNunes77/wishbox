@@ -50,17 +50,29 @@ exports.handler = async (event, context) => {
 
     console.log(`[${new Date().toISOString()}] URL de busca: ${searchUrl}`);
 
-    // Fazer requisição HTTP - versão simples que funcionava antes
+    // Fazer requisição HTTP com headers completos para parecer navegador real
     const response = await axios.get(searchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
         'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Cache-Control': 'max-age=0',
+        'DNT': '1',
+        'Referer': 'https://www.google.com/',
+        'Origin': 'https://www.magazineluiza.com.br',
       },
-      timeout: 10000, // Timeout menor para Netlify Functions (10s no plano gratuito)
+      timeout: 15000, // Timeout aumentado
+      validateStatus: function (status) {
+        // Aceitar qualquer status para poder tratar erros
+        return status >= 200 && status < 500;
+      },
     });
 
     if (response.status !== 200) {
