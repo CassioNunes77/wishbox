@@ -2,12 +2,6 @@ import axios from 'axios';
 import { Product } from '@/lib/types/product';
 import { APP_CONSTANTS } from '@/lib/constants/app';
 
-// Em produção no Netlify, usa a função serverless (relativa)
-// Em desenvolvimento, usa backend separado ou Netlify Dev
-const API_BASE_URL = typeof window !== 'undefined' && !APP_CONSTANTS.backendBaseUrl
-  ? '/api/search' // Usa função Netlify (relativa)
-  : APP_CONSTANTS.backendBaseUrl;
-
 export class ApiService {
   /**
    * Busca produtos da Magazine Luiza via backend
@@ -67,9 +61,6 @@ export class ApiService {
       
       const apiUrl = `${baseUrl}/api/search`;
       
-      console.log('=== ApiService: Final baseUrl:', baseUrl);
-      console.log('=== ApiService: Full API URL:', apiUrl);
-      
       const response = await axios.get(apiUrl, {
         params: {
           query: params.query,
@@ -95,7 +86,6 @@ export class ApiService {
       console.error('=== ApiService: Error message:', error.message);
       console.error('=== ApiService: Response data:', error.response?.data);
       console.error('=== ApiService: Response status:', error.response?.status);
-      console.error('=== ApiService: Request URL:', `${API_BASE_URL}/api/search`);
       console.error('=== ApiService: Request params:', {
         query: params.query,
         limit: params.limit,
