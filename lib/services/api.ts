@@ -89,7 +89,8 @@ export class ApiService {
       if (imageUrl.startsWith('//')) {
         imageUrl = `https:${imageUrl}`;
       } else if (imageUrl.startsWith('/')) {
-        imageUrl = `https://www.magazineluiza.com.br${imageUrl}`;
+        // URL relativa - manter como está (será resolvida pelo servidor de origem)
+        // Se necessário, adicionar base URL do produto aqui
       }
     }
 
