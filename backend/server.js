@@ -38,73 +38,24 @@ app.get('/api/search', async (req, res) => {
     }
 
     console.log(`[${new Date().toISOString()}] URL de busca: ${searchUrl}`);
-    
-    // Adicionar delay aleatório para parecer mais humano (2-5 segundos)
-    const randomDelay = Math.floor(Math.random() * 3000) + 2000;
-    console.log(`[${new Date().toISOString()}] Aguardando ${randomDelay}ms antes da requisição...`);
-    await new Promise(resolve => setTimeout(resolve, randomDelay));
 
-    // Rotacionar User-Agents para parecer mais diverso
-    const userAgents = [
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
-    ];
-    const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
-
-    // Fazer requisição HTTP com headers mais completos para evitar bloqueio
-    let response;
-    try {
-      response = await axios.get(searchUrl, {
-        headers: {
-          'User-Agent': randomUserAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-          'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-          'Sec-Fetch-Dest': 'document',
-          'Sec-Fetch-Mode': 'navigate',
-          'Sec-Fetch-Site': 'none',
-          'Sec-Fetch-User': '?1',
-          'Cache-Control': 'max-age=0',
-          'Referer': 'https://www.google.com/',
-          'DNT': '1',
-          'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-          'sec-ch-ua-mobile': '?0',
-          'sec-ch-ua-platform': '"Windows"',
-        },
-        timeout: 25000,
-        maxRedirects: 5,
-        validateStatus: function (status) {
-          return status >= 200 && status < 500; // Aceitar até 499 para ver o erro
-        },
-      });
-    } catch (axiosError) {
-      // Se axios lançar erro (não response), tratar aqui
-      if (axiosError.response) {
-        response = axiosError.response;
-      } else {
-        throw axiosError;
-      }
-    }
+    // Fazer requisição HTTP - versão simples que funcionava antes
+    const response = await axios.get(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+      },
+      timeout: 15000,
+    });
 
     if (response.status !== 200) {
       console.error(`[${new Date().toISOString()}] HTTP ${response.status}`);
-      console.error(`[${new Date().toISOString()}] Response headers:`, response.headers);
-      
-      if (response.status === 403) {
-        return res.status(403).json({ 
-          error: 'Acesso negado pelo Magazine Luiza. O site pode estar bloqueando requisições automatizadas.',
-          details: 'Tente novamente em alguns minutos ou verifique se o site está acessível.',
-          products: []
-        });
-      }
-      
       return res.status(response.status).json({ 
         error: `HTTP ${response.status}`,
-        details: response.status === 403 ? 'Acesso negado - possível bloqueio anti-bot' : 'Erro ao acessar o site',
         products: []
       });
     }
