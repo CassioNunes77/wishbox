@@ -53,8 +53,19 @@ app.get('/api/search', async (req, res) => {
 
     if (response.status !== 200) {
       console.error(`[${new Date().toISOString()}] HTTP ${response.status}`);
+      console.error(`[${new Date().toISOString()}] Response headers:`, response.headers);
+      
+      if (response.status === 403) {
+        return res.status(403).json({ 
+          error: 'Acesso negado pelo Magazine Luiza. O site pode estar bloqueando requisições automatizadas.',
+          details: 'Tente novamente em alguns minutos ou verifique se o site está acessível.',
+          products: []
+        });
+      }
+      
       return res.status(response.status).json({ 
         error: `HTTP ${response.status}`,
+        details: response.status === 403 ? 'Acesso negado - possível bloqueio anti-bot' : 'Erro ao acessar o site',
         products: []
       });
     }
@@ -76,8 +87,22 @@ app.get('/api/search', async (req, res) => {
 
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Erro:`, error.message);
+    console.error(`[${new Date().toISOString()}] Stack:`, error.stack);
+    
+    // Se for erro 403 (Forbidden), retornar erro mais específico
+    if (error.response && error.response.status === 403) {
+      console.error(`[${new Date().toISOString()}] Erro 403: Magazine Luiza bloqueou a requisição`);
+      return res.status(403).json({ 
+        error: 'Acesso negado pelo site. O site pode estar bloqueando requisições automatizadas.',
+        details: 'O Magazine Luiza pode estar bloqueando requisições que não vêm de navegadores reais.',
+        products: []
+      });
+    }
+    
+    // Erro genérico
     res.status(500).json({ 
-      error: error.message,
+      error: error.message || 'Erro interno do servidor',
+      details: error.response ? `HTTP ${error.response.status}` : 'Erro desconhecido',
       products: []
     });
   }
