@@ -7,12 +7,27 @@
 
 import Foundation
 
-enum ApiError: Error {
+enum ApiError: Error, LocalizedError {
     case invalidURL
     case noData
     case decodingError
     case serverError(Int, String)
     case networkError(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "URL inválida. Verifique a configuração da API."
+        case .noData:
+            return "Nenhum dado recebido do servidor."
+        case .decodingError:
+            return "Erro ao processar resposta do servidor."
+        case .serverError(let code, let message):
+            return "Erro do servidor (\(code)): \(message)"
+        case .networkError(let error):
+            return "Erro de conexão: \(error.localizedDescription)"
+        }
+    }
 }
 
 class ApiService {

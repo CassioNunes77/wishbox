@@ -80,9 +80,16 @@ struct SuggestionsView: View {
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Erro ao carregar produtos: \(error.localizedDescription)"
+                    let errorMsg: String
+                    if let apiError = error as? ApiError {
+                        errorMsg = apiError.errorDescription ?? "Erro desconhecido"
+                    } else {
+                        errorMsg = error.localizedDescription
+                    }
+                    self.errorMessage = "Erro ao carregar produtos: \(errorMsg)"
                     self.isLoading = false
                 }
+                print("=== SuggestionsView: Erro ao carregar produtos: \(error)")
             }
         }
     }
