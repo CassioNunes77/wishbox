@@ -2,8 +2,16 @@ import { AffiliateStore } from '@/lib/types/store';
 import { StorageService } from './storage';
 
 const STORAGE_KEY = 'affiliate_stores';
+const ADMIN_PASSWORD = 'admin123'; // Senha simples para demo
 
 export class StoreService {
+  /**
+   * Verifica se a senha do admin está correta
+   */
+  static verifyAdminPassword(password: string): boolean {
+    return password === ADMIN_PASSWORD;
+  }
+
   /**
    * Obtém todas as lojas afiliadas
    */
@@ -33,6 +41,65 @@ export class StoreService {
   static getStoreByName(name: string): AffiliateStore | null {
     const stores = this.getStores();
     return stores.find((s) => s.name.toLowerCase() === name.toLowerCase()) || null;
+  }
+
+  /**
+   * Adiciona uma nova loja
+   */
+  static addStore(store: AffiliateStore): boolean {
+    const stores = this.getStores();
+    
+    // Verificar se já existe
+    if (stores.some((s) => s.id === store.id || s.name === store.name)) {
+      return false;
+    }
+
+    stores.push(store);
+    return this.saveStores(stores);
+  }
+
+  /**
+   * Atualiza uma loja
+   */
+  static updateStore(updatedStore: AffiliateStore): boolean {
+    const stores = this.getStores();
+    const index = stores.findIndex((s) => s.id === updatedStore.id);
+    
+    if (index === -1) {
+      return false;
+    }
+
+    stores[index] = {
+      ...updatedStore,
+      updatedAt: new Date().toISOString(),
+    };
+    return this.saveStores(stores);
+  }
+
+  /**
+   * Remove uma loja
+   */
+  static removeStore(id: string): boolean {
+    const stores = this.getStores();
+    const filtered = stores.filter((s) => s.id !== id);
+    return this.saveStores(filtered);
+  }
+
+  /**
+   * Ativa/desativa uma loja
+   */
+  static toggleStoreStatus(id: string): boolean {
+    const stores = this.getStores();
+    const index = stores.findIndex((s) => s.id === id);
+    
+    if (index === -1) return false;
+
+    stores[index] = {
+      ...stores[index],
+      isActive: !stores[index].isActive,
+      updatedAt: new Date().toISOString(),
+    };
+    return this.saveStores(stores);
   }
 
   /**
