@@ -77,12 +77,35 @@ exports.handler = async (event, context) => {
 
     if (response.status !== 200) {
       console.error(`[${new Date().toISOString()}] HTTP ${response.status}`);
+      console.error(`[${new Date().toISOString()}] Response headers:`, JSON.stringify(response.headers, null, 2));
+      
+      // Se for 403, retornar mensagem específica
+      if (response.status === 403) {
+        return {
+          statusCode: 403,
+          headers,
+          body: JSON.stringify({ 
+            success: false,
+            error: 'Acesso negado pelo Magazine Luiza. O site pode estar bloqueando requisições automatizadas.',
+            details: 'O Magazine Luiza detectou que esta é uma requisição automatizada e bloqueou o acesso. Tente novamente mais tarde ou verifique se o serviço de scraping está funcionando corretamente.',
+            products: [],
+            query,
+            affiliateUrl: affiliateUrl || null,
+            count: 0
+          }),
+        };
+      }
+      
       return {
         statusCode: response.status,
         headers,
         body: JSON.stringify({ 
-          error: `HTTP ${response.status}`,
-          products: []
+          success: false,
+          error: `Erro HTTP ${response.status}`,
+          products: [],
+          query,
+          affiliateUrl: affiliateUrl || null,
+          count: 0
         }),
       };
     }
