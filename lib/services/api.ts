@@ -17,7 +17,16 @@ export class ApiService {
       console.log('=== ApiService: Searching for:', params.query);
       console.log('=== ApiService: Using backend:', API_BASE_URL);
 
-      const response = await axios.get(`${API_BASE_URL}/api/search`, {
+      // Garantir que a URL não tenha barra no final
+      const baseUrl = API_BASE_URL.endsWith('/') 
+        ? API_BASE_URL.slice(0, -1) 
+        : API_BASE_URL;
+      
+      const apiUrl = `${baseUrl}/api/search`;
+      
+      console.log('=== ApiService: Full API URL:', apiUrl);
+      
+      const response = await axios.get(apiUrl, {
         params: {
           query: params.query,
           limit: params.limit || 20,
