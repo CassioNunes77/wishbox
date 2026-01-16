@@ -1,0 +1,1 @@
+ /Users/Cassio/Documents/Xcode\ Projects/WishBox/.dart_tool/flutter_build/1386cb7f78d7c6e14500caaa64fbb23a/dart_build_result.json: 
