@@ -99,21 +99,45 @@ class _SplashPageState extends State<SplashPage>
       if (!mounted) return;
       
       try {
-        await AppPreferencesService.setCompletedOnboarding(true);
-        
-        if (!mounted) return;
-        
+        // Tentar salvar preferências com timeout mais curto
+        await AppPreferencesService.setCompletedOnboarding(true)
+            .timeout(
+          const Duration(seconds: 1),
+          onTimeout: () {
+            debugPrint('=== Timeout saving preferences, continuing anyway ===');
+          },
+        );
+      } catch (e) {
+        debugPrint('=== Error saving preferences: $e ===');
+        // Continuar mesmo com erro
+      }
+      
+      if (!mounted) return;
+      
+      try {
         final router = GoRouter.maybeOf(context);
         if (router != null) {
           router.go('/home');
+        } else {
+          debugPrint('=== Router not available, trying again ===');
+          // Tentar novamente depois de um pequeno delay
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              final router2 = GoRouter.maybeOf(context);
+              router2?.go('/home');
+            }
+          });
         }
       } catch (e) {
         debugPrint('=== Error navigating from splash: $e ===');
+        // Tentar navegar novamente
         if (mounted) {
-          final router = GoRouter.maybeOf(context);
-          if (router != null) {
-            router.go('/home');
-          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              final router = GoRouter.maybeOf(context);
+              router?.go('/home');
+            }
+          });
         }
       }
     });

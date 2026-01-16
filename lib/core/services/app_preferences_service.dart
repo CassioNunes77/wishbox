@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 class AppPreferencesService {
   static const String _keyHasCompletedOnboarding = 'has_completed_onboarding';
@@ -24,15 +25,25 @@ class AppPreferencesService {
   /// Marca que o usuário completou o onboarding/splash
   static Future<void> setCompletedOnboarding(bool value) async {
     try {
-      // Usar timeout para evitar travamentos
+      // Usar timeout mais curto para evitar travamentos na inicialização
       final prefs = await SharedPreferences.getInstance()
-          .timeout(const Duration(seconds: 2));
+          .timeout(const Duration(milliseconds: 500), onTimeout: () {
+        debugPrint('=== Timeout getting SharedPreferences instance ===');
+        throw TimeoutException('Timeout getting SharedPreferences', const Duration(milliseconds: 500));
+      });
+      
       await prefs.setBool(_keyHasCompletedOnboarding, value)
-          .timeout(const Duration(seconds: 1));
+          .timeout(const Duration(milliseconds: 500));
+      
       debugPrint('=== AppPreferencesService: setCompletedOnboarding($value) = success ===');
+    } on TimeoutException {
+      debugPrint('=== AppPreferencesService: Timeout writing hasCompletedOnboarding ===');
+      // Não relançar o erro para não bloquear o app - apenas logar
+      // O app deve continuar funcionando mesmo se não conseguir salvar
     } catch (e) {
       debugPrint('=== AppPreferencesService: Error writing hasCompletedOnboarding: $e ===');
-      // Não relançar o erro para não bloquear o app
+      // Não relançar o erro para não bloquear o app - apenas logar
+      // O app deve continuar funcionando mesmo se não conseguir salvar
     }
   }
 
