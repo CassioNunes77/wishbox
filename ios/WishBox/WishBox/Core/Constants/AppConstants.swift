@@ -24,12 +24,19 @@ struct AppConstants {
     static var apiSearchUrl: String {
         if backendBaseUrl.isEmpty {
             // Produção: usar função Netlify
-            // IMPORTANTE: Atualizar com a URL real do seu Netlify
-            // Ou usar variável de ambiente no build settings
+            // IMPORTANTE: Substitua pela URL real do seu Netlify
+            // Exemplo: return "https://seu-site.netlify.app/api/search"
             return "https://wish2box.netlify.app/api/search"
         } else {
             // Desenvolvimento: usar backend separado
-            let baseUrl = backendBaseUrl.hasSuffix("/") ? String(backendBaseUrl.dropLast()) : backendBaseUrl
+            var baseUrl = backendBaseUrl
+            if baseUrl.hasSuffix("/") {
+                baseUrl = String(baseUrl.dropLast())
+            }
+            // Garantir que comece com http/https
+            if !baseUrl.hasPrefix("http://") && !baseUrl.hasPrefix("https://") {
+                baseUrl = "https://\(baseUrl)"
+            }
             return "\(baseUrl)/api/search"
         }
     }
