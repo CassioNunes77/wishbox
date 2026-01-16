@@ -102,16 +102,6 @@
 			path = RunnerTests;
 			sourceTree = "<group>";
 		};
-		9740EEB11CF90186004384FC /* Flutter */ = {
-			isa = PBXGroup;
-			children = (
-				9740EEB21CF90195004384FC /* Debug.xcconfig */,
-				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
-				9740EEB31CF90195004384FC /* Generated.xcconfig */,
-			);
-			name = Flutter;
-			sourceTree = "<group>";
-		};
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
