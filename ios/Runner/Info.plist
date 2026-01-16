@@ -66,13 +66,6 @@
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 			</dict>
-			<key>magazineluiza.com.br</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-			</dict>
 			<key>mercadolivre.com.br</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
