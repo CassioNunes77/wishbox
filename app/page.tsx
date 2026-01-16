@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { APP_CONSTANTS } from '@/lib/constants/app';
+import { DebugInfo } from '@/lib/components/debug-info';
 
 export default function HomePage() {
   const router = useRouter();
@@ -173,6 +174,7 @@ export default function HomePage() {
           <p>Use nossa IA para encontrar os melhores presentes</p>
         </div>
       </main>
+      <DebugInfo />
     </div>
   );
 }

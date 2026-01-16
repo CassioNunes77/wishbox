@@ -39,16 +39,26 @@ function SuggestionsContent() {
       
       console.log('=== SuggestionsPage: Active stores:', activeStores.map(s => s.displayName));
       console.log('=== SuggestionsPage: Using affiliateUrl:', affiliateUrl);
+      console.log('=== SuggestionsPage: Query:', query);
+
+      // Se não há query, não buscar
+      if (!query || query.trim() === '') {
+        setError('Digite algo para buscar');
+        setIsLoading(false);
+        return;
+      }
 
       // Buscar produtos reais do backend usando a loja ativa
       const products = await ApiService.searchProducts({
-        query: query || 'presentes',
+        query: query.trim(),
         limit: 30,
         affiliateUrl: affiliateUrl,
       });
 
+      console.log('=== SuggestionsPage: Products received:', products.length);
+
       if (products.length === 0) {
-        setError('Nenhum produto encontrado. Tente outra busca.');
+        setError(`Nenhum produto encontrado para "${query}". Tente outra busca.`);
         setIsLoading(false);
         return;
       }
@@ -66,7 +76,23 @@ function SuggestionsContent() {
       setSuggestions(newSuggestions);
     } catch (err: any) {
       console.error('Error loading suggestions:', err);
-      setError('Erro ao carregar sugestões. Verifique se o backend está rodando.');
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        url: err.config?.url,
+      });
+      
+      // Mensagem de erro mais específica
+      if (err.code === 'ECONNREFUSED' || err.message?.includes('Network Error')) {
+        setError('Não foi possível conectar ao backend. Verifique se o backend está rodando e se a URL está correta.');
+      } else if (err.response?.status === 404) {
+        setError('Endpoint do backend não encontrado. Verifique a configuração.');
+      } else if (err.response?.status >= 500) {
+        setError('Erro no servidor backend. Tente novamente mais tarde.');
+      } else {
+        setError(`Erro ao carregar sugestões: ${err.message || 'Erro desconhecido'}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -156,6 +182,15 @@ function SuggestionsContent() {
 
       {/* Results */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Debug info em desenvolvimento */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
+            <strong>Debug:</strong> Backend: {process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}
+            <br />
+            Lojas ativas: {StoreService.getActiveStores().length}
+          </div>
+        )}
+        
         <p className="text-sm text-text-secondary mb-6">
           {suggestions.length} {suggestions.length === 1 ? 'produto encontrado' : 'produtos encontrados'}
         </p>

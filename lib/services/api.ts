@@ -39,8 +39,18 @@ export class ApiService {
     } catch (error: any) {
       console.error('=== ApiService: Error:', error);
       console.error('=== ApiService: Error type:', error.constructor.name);
-      console.log('=== ApiService: Backend não disponível - verifique se está rodando');
-      return [];
+      console.error('=== ApiService: Error message:', error.message);
+      console.error('=== ApiService: Response data:', error.response?.data);
+      console.error('=== ApiService: Response status:', error.response?.status);
+      console.error('=== ApiService: Request URL:', `${API_BASE_URL}/api/search`);
+      console.error('=== ApiService: Request params:', {
+        query: params.query,
+        limit: params.limit,
+        affiliateUrl: params.affiliateUrl,
+      });
+      
+      // Relançar o erro para que o componente possa tratá-lo
+      throw error;
     }
   }
 
