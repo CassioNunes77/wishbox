@@ -14,16 +14,29 @@ export class ApiService {
     affiliateUrl?: string;
   }): Promise<Product[]> {
     try {
+      // Debug: verificar variável de ambiente
+      const envBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      console.log('=== ApiService: ENV NEXT_PUBLIC_BACKEND_URL:', envBackendUrl);
+      console.log('=== ApiService: APP_CONSTANTS.backendBaseUrl:', API_BASE_URL);
       console.log('=== ApiService: Searching for:', params.query);
-      console.log('=== ApiService: Using backend:', API_BASE_URL);
 
-      // Garantir que a URL não tenha barra no final
-      const baseUrl = API_BASE_URL.endsWith('/') 
-        ? API_BASE_URL.slice(0, -1) 
-        : API_BASE_URL;
+      // Se a variável de ambiente não estiver definida, usar fallback
+      const backendUrl = envBackendUrl || API_BASE_URL;
+      console.log('=== ApiService: Using backend URL:', backendUrl);
+
+      // Garantir que a URL não tenha barra no final e tenha https://
+      let baseUrl = backendUrl.trim();
+      if (baseUrl.endsWith('/')) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+      // Se não começar com http, adicionar https://
+      if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+        baseUrl = `https://${baseUrl}`;
+      }
       
       const apiUrl = `${baseUrl}/api/search`;
       
+      console.log('=== ApiService: Final baseUrl:', baseUrl);
       console.log('=== ApiService: Full API URL:', apiUrl);
       
       const response = await axios.get(apiUrl, {

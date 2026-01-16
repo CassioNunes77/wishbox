@@ -56,5 +56,8 @@ export const APP_CONSTANTS = {
   currencySymbol: 'R$',
 
   // Backend API
-  backendBaseUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000',
+  // Em produção, NEXT_PUBLIC_BACKEND_URL deve estar configurada no Netlify
+  backendBaseUrl: typeof window !== 'undefined' 
+    ? (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000')
+    : (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'),
 } as const;
