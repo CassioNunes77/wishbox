@@ -209,10 +209,6 @@ export class StoreService {
     return finalUrl;
   }
 
-  // TODO: REMOVER TESTE - Link de afiliado temporário para teste
-  // Para remover: delete esta constante TEST_AFFILIATE_URL e use string vazia
-  private static readonly TEST_AFFILIATE_URL = 'https://www.mercadolivre.com.br/social/elislecio';
-
   /**
    * Lojas padrão (para inicialização)
    */
@@ -223,7 +219,7 @@ export class StoreService {
         id: 'mercado_livre',
         name: 'mercado_livre',
         displayName: 'Mercado Livre',
-        affiliateUrlTemplate: this.TEST_AFFILIATE_URL, // TODO: REMOVER TESTE - Usar string vazia quando não precisar mais
+        affiliateUrlTemplate: 'https://www.mercadolivre.com.br/social/elislecio',
         isActive: true,
         createdAt: now,
       },
