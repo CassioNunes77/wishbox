@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ApiService } from '@/lib/services/api';
 import { StoreService } from '@/lib/services/store';
+import { FavoritesService } from '@/lib/services/favorites';
 import { GiftSuggestion, Product } from '@/lib/types/product';
 import { APP_CONSTANTS } from '@/lib/constants/app';
 
@@ -15,10 +16,14 @@ function SuggestionsContent() {
   const [suggestions, setSuggestions] = useState<GiftSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const query = searchParams.get('query') || '';
 
   useEffect(() => {
     loadSuggestions();
+    // Carregar IDs dos favoritos
+    const favorites = FavoritesService.getFavorites();
+    setFavoriteIds(new Set(favorites.map(p => p.id)));
   }, [query]);
 
   const loadSuggestions = async () => {
@@ -26,10 +31,20 @@ function SuggestionsContent() {
     setError(null);
 
     try {
-      // Buscar produtos reais do backend
+      // Buscar lojas ativas da área admin
+      const activeStores = StoreService.getActiveStores();
+      
+      // Pegar a primeira loja ativa (Magazine Luiza geralmente)
+      const affiliateUrl = activeStores.length > 0 ? activeStores[0].affiliateUrlTemplate : undefined;
+      
+      console.log('=== SuggestionsPage: Active stores:', activeStores.map(s => s.displayName));
+      console.log('=== SuggestionsPage: Using affiliateUrl:', affiliateUrl);
+
+      // Buscar produtos reais do backend usando a loja ativa
       const products = await ApiService.searchProducts({
         query: query || 'presentes',
         limit: 30,
+        affiliateUrl: affiliateUrl,
       });
 
       if (products.length === 0) {
@@ -73,6 +88,20 @@ function SuggestionsContent() {
       window.open(product.affiliateUrl, '_blank');
     } else if (product.productUrlBase) {
       window.open(product.productUrlBase, '_blank');
+    }
+  };
+
+  const handleToggleFavorite = (product: Product) => {
+    if (favoriteIds.has(product.id)) {
+      FavoritesService.removeFavorite(product.id);
+      setFavoriteIds(prev => {
+        const next = new Set(prev);
+        next.delete(product.id);
+        return next;
+      });
+    } else {
+      FavoritesService.addFavorite(product);
+      setFavoriteIds(prev => new Set(prev).add(product.id));
     }
   };
 
@@ -177,12 +206,25 @@ function SuggestionsContent() {
                     )}
                   </div>
 
-                  <button
-                    onClick={() => handleOpenProduct(product)}
-                    className="w-full px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors"
-                  >
-                    Ver na loja
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleOpenProduct(product)}
+                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors"
+                    >
+                      Ver na loja
+                    </button>
+                    <button
+                      onClick={() => handleToggleFavorite(product)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                        favoriteIds.has(product.id)
+                          ? 'bg-error/20 text-error hover:bg-error/30'
+                          : 'bg-background text-text-secondary border border-border hover:bg-surface'
+                      }`}
+                      title={favoriteIds.has(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                    >
+                      {favoriteIds.has(product.id) ? '❤️' : '🤍'}
+                    </button>
+                  </div>
                 </div>
               </div>
             );

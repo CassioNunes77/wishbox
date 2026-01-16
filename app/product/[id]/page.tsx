@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ApiService } from '@/lib/services/api';
 import { StoreService } from '@/lib/services/store';
+import { FavoritesService } from '@/lib/services/favorites';
 import { Product } from '@/lib/types/product';
 
 export default function ProductDetailsPage() {
@@ -15,6 +16,7 @@ export default function ProductDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [affiliateUrl, setAffiliateUrl] = useState<string | null>(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     loadProduct();
@@ -49,6 +51,9 @@ export default function ProductDetailsPage() {
       } else {
         setAffiliateUrl(foundProduct.affiliateUrl || foundProduct.productUrlBase || null);
       }
+
+      // Verificar se está nos favoritos
+      setIsFavorite(FavoritesService.isFavorite(foundProduct.id));
     } catch (err: any) {
       console.error('Error loading product:', err);
       setError('Erro ao carregar produto');
@@ -67,6 +72,18 @@ export default function ProductDetailsPage() {
   const handleOpenInStore = () => {
     if (affiliateUrl) {
       window.open(affiliateUrl, '_blank');
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    if (!product) return;
+
+    if (isFavorite) {
+      FavoritesService.removeFavorite(product.id);
+      setIsFavorite(false);
+    } else {
+      FavoritesService.addFavorite(product);
+      setIsFavorite(true);
     }
   };
 
@@ -180,12 +197,25 @@ export default function ProductDetailsPage() {
               </div>
             )}
 
-            <button
-              onClick={handleOpenInStore}
-              className="w-full px-6 py-4 bg-primary text-white rounded-lg font-semibold text-lg hover:bg-primary-dark transition-colors"
-            >
-              Ver na loja
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={handleOpenInStore}
+                className="flex-1 px-6 py-4 bg-primary text-white rounded-lg font-semibold text-lg hover:bg-primary-dark transition-colors"
+              >
+                Ver na loja
+              </button>
+              <button
+                onClick={handleToggleFavorite}
+                className={`px-6 py-4 rounded-lg font-semibold text-lg transition-colors ${
+                  isFavorite
+                    ? 'bg-error/20 text-error hover:bg-error/30'
+                    : 'bg-background text-text-secondary border border-border hover:bg-surface'
+                }`}
+                title={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+              >
+                {isFavorite ? '❤️ Removido' : '🤍 Favoritar'}
+              </button>
+            </div>
           </div>
         </div>
       </main>
