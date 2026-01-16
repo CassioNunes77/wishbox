@@ -85,7 +85,7 @@ struct ProductCard: View {
         product: Product(
             id: "1",
             externalId: "1",
-            affiliateSource: "magazine_luiza",
+            affiliateSource: "mercado_livre",
             name: "Produto Exemplo",
             description: "Descrição",
             price: 99.90,

@@ -4,7 +4,7 @@ import { APP_CONSTANTS } from '@/lib/constants/app';
 
 export class ApiService {
   /**
-   * Busca produtos da Magazine Luiza via backend
+   * Busca produtos via backend/Netlify Function
    */
   static async searchProducts(params: {
     query: string;
@@ -96,7 +96,7 @@ export class ApiService {
     return {
       id: json.id || '',
       externalId: json.externalId || json.id || '',
-      affiliateSource: json.affiliateSource || 'magazine_luiza',
+      affiliateSource: json.affiliateSource || 'mercado_livre',
       name: json.name || 'Produto sem nome',
       description: json.description || '',
       price: json.price || 0,

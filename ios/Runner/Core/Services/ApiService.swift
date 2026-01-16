@@ -35,7 +35,7 @@ class ApiService {
     
     private init() {}
     
-    /// Busca produtos da Magazine Luiza via backend/Netlify Function
+    /// Busca produtos via backend/Netlify Function
     func searchProducts(
         query: String,
         limit: Int = 20,
