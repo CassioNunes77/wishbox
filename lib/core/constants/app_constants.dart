@@ -63,6 +63,14 @@ class AppConstants {
   // Currency
   static const String defaultCurrency = 'BRL';
   static const String currencySymbol = 'R\$';
+
+  // Backend API
+  // Para desenvolvimento local: http://localhost:3000
+  // Para produção: substitua pela URL do seu backend deployado
+  static const String backendBaseUrl = String.fromEnvironment(
+    'BACKEND_URL',
+    defaultValue: 'http://localhost:3000',
+  );
 }
 
 

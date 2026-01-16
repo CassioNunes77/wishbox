@@ -54,3 +54,4 @@ Se funcionar, podemos configurar o automático depois. Por enquanto, **só arras
 2. Me diga qual erro aparece
 3. Verifique se os arquivos foram enviados no Netlify (clique no deploy > Published files)
 
+

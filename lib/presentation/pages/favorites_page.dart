@@ -66,6 +66,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWeb = screenWidth > 600;
+    final crossAxisCount = isWeb ? 4 : 1; // 4 itens por linha no web, 1 no mobile
+    final childAspectRatio = isWeb ? (1 / 1.8) : (1 / 1.6); // Ajuste para web
     
     return Scaffold(
       appBar: TopNavBar(currentRoute: '/favorites'),
@@ -128,22 +130,33 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       ],
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _favorites.length,
-                    itemBuilder: (context, index) {
-                      final product = _favorites[index];
-                      return ProductCard(
-                        product: product,
-                        reasonText: 'Salvo nos seus favoritos ❤️',
-                        onLike: () {},
-                        onDislike: () {},
-                        onSave: () async {
-                          await _removeFavorite(product);
-                        },
-                        onTap: () {
-                          context.push(
-                            '/product-details?id=${product.id}',
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      return GridView.builder(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: isWeb ? 40 : 16, vertical: 24),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              crossAxisSpacing: isWeb ? 20 : 16,
+                              mainAxisSpacing: isWeb ? 20 : 16,
+                              childAspectRatio: isWeb ? 0.55 : 1.6,
+                            ),
+                        itemCount: _favorites.length,
+                        itemBuilder: (context, index) {
+                          final product = _favorites[index];
+                          return ProductCard(
+                            product: product,
+                            reasonText: 'Salvo nos seus favoritos ❤️',
+                            onLike: () {},
+                            onDislike: () {},
+                            onSave: () async {
+                              await _removeFavorite(product);
+                            },
+                            onTap: () {
+                              context.push(
+                                '/product-details?id=${product.id}',
+                              );
+                            },
                           );
                         },
                       );

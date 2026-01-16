@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:html' as html show window;
 import '../../domain/entities/product.dart';
 import '../../domain/entities/affiliate_store.dart';
 import '../../core/theme/app_theme.dart';
@@ -708,7 +707,7 @@ class _ProductCardState extends State<ProductCard>
       String? url;
       
       // SEMPRE gerar URL de afiliado usando o template da loja (isso garante limpeza de duplicações)
-      url = await _generateAffiliateUrl();
+        url = await _generateAffiliateUrl();
       
       // Se não conseguiu gerar, usar affiliateUrl do produto (mas limpar duplicações)
       if (url == null || url.isEmpty) {
@@ -754,49 +753,27 @@ class _ProductCardState extends State<ProductCard>
       final uri = Uri.parse(url);
       
       try {
-        if (kIsWeb) {
-          // No web, usar window.open diretamente para garantir que funcione
-          html.window.open(url, '_blank');
-          
-          // Feedback positivo
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                    const SizedBox(width: 8),
-                    const Text('Abrindo na loja...'),
-                  ],
-                ),
-                backgroundColor: AppTheme.successColor,
-                duration: const Duration(seconds: 1),
+        // Usar url_launcher que funciona em todas as plataformas (web, iOS, Android)
+        await launchUrl(
+          uri,
+          mode: kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
+        );
+        
+        // Feedback positivo
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  const Text('Abrindo na loja...'),
+                ],
               ),
-            );
-          }
-        } else {
-          // No mobile, usar url_launcher
-          await launchUrl(
-            uri,
-            mode: LaunchMode.externalApplication,
+              backgroundColor: AppTheme.successColor,
+              duration: const Duration(seconds: 1),
+            ),
           );
-          
-          // Feedback positivo
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                    const SizedBox(width: 8),
-                    const Text('Abrindo na loja...'),
-                  ],
-                ),
-                backgroundColor: AppTheme.successColor,
-                duration: const Duration(seconds: 1),
-              ),
-            );
-          }
         }
       } catch (e) {
         debugPrint('Erro ao abrir URL: $e');
@@ -902,78 +879,91 @@ class _ProductCardState extends State<ProductCard>
         // LÓGICA CORRIGIDA PARA REMOVER DUPLICAÇÕES:
         final templateNormalized = store.affiliateUrlTemplate.trim();
         
-        // ETAPA 1: Remover TODAS as ocorrências do template do início do productUrl
-        String tempUrl = productUrl;
-        int removals = 0;
-        while (tempUrl.startsWith(templateNormalized)) {
-          tempUrl = tempUrl.substring(templateNormalized.length);
-          removals++;
-        }
-        productUrl = tempUrl;
-        if (removals > 0) {
-          debugPrint('✅ Removido template $removals vez(es) do início: $productUrl');
-        }
+        debugPrint('═══════════════════════════════════════════════════════');
+        debugPrint('PRODUCT_CARD: Gerando URL de afiliado');
+        debugPrint('Template: $templateNormalized');
+        debugPrint('ProductUrlBase original: $productUrl');
         
-        // ETAPA 2: Se ainda é URL completa, extrair APENAS o caminho relativo
-        if (productUrl.startsWith('http://') || productUrl.startsWith('https://')) {
+        // ETAPA 1: Se productUrl é URL completa, extrair APENAS o caminho relativo PRIMEIRO
+        String relativePath = productUrl;
+        if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
           try {
-            final uri = Uri.parse(productUrl);
-            productUrl = uri.path + (uri.query.isNotEmpty ? '?${uri.query}' : '');
-            debugPrint('✅ Extraído caminho relativo: $productUrl');
+            final uri = Uri.parse(relativePath);
+            relativePath = uri.path + (uri.query.isNotEmpty ? '?${uri.query}' : '');
+            debugPrint('✅ ETAPA 1: Extraído caminho relativo: $relativePath');
           } catch (e) {
             debugPrint('⚠️ Erro ao parsear URL: $e');
-            final match = RegExp(r'https?://[^/]+(/.*)').firstMatch(productUrl);
+            final match = RegExp(r'https?://[^/]+(/.*)').firstMatch(relativePath);
             if (match != null && match.group(1) != null) {
-              productUrl = match.group(1)!;
-              debugPrint('✅ Fallback: Extraído caminho: $productUrl');
+              relativePath = match.group(1)!;
+              debugPrint('✅ ETAPA 1 (fallback): Extraído caminho: $relativePath');
             }
           }
         }
         
-        // ETAPA 3: Remover duplicações do caminho do template
+        // ETAPA 2: Extrair o caminho do template (ex: /elislecio/)
+        String templatePath = '';
         try {
           final templateUri = Uri.parse(templateNormalized);
-          final templatePath = templateUri.path;
-          
-          // Remover caminho do template se começar com ele
-          if (templatePath.isNotEmpty && productUrl.startsWith(templatePath)) {
-            productUrl = productUrl.substring(templatePath.length);
-            debugPrint('✅ Removido caminho do template: $productUrl');
-          }
-          
-          // Remover segmentos duplicados (ex: "elislecio/elislecio/")
-          final templateSegments = templatePath.split('/').where((s) => s.isNotEmpty).toList();
-          if (templateSegments.isNotEmpty) {
-            final lastSegment = templateSegments.last;
-            while (productUrl.startsWith('$lastSegment/') || productUrl.startsWith('/$lastSegment/')) {
-              productUrl = productUrl.replaceFirst(RegExp(r'^/?$lastSegment/'), '/');
-            }
-            if (productUrl.startsWith('//')) {
-              productUrl = productUrl.substring(1);
-            }
-            debugPrint('✅ Removido segmentos duplicados: $productUrl');
-          }
+          templatePath = templateUri.path; // Ex: /elislecio/
+          debugPrint('✅ ETAPA 2: Template path: $templatePath');
         } catch (e) {
-          debugPrint('⚠️ Erro ao processar template: $e');
+          debugPrint('⚠️ Erro ao parsear template: $e');
         }
         
-        // ETAPA 4: Limpar barras duplicadas e garantir que comece com /
-        productUrl = productUrl.replaceAll(RegExp(r'/+'), '/');
-        if (productUrl.startsWith('//')) {
-          productUrl = productUrl.substring(1);
-        }
-        if (!productUrl.startsWith('/')) {
-          productUrl = '/$productUrl';
+        // ETAPA 3: Remover o caminho do template do início do relativePath
+        if (templatePath.isNotEmpty && templatePath != '/') {
+          final cleanTemplatePath = templatePath.endsWith('/') 
+            ? templatePath.substring(0, templatePath.length - 1)
+            : templatePath; // Ex: /elislecio
+          
+          // Remover /elislecio/ do início
+          final pathWithSlash = cleanTemplatePath + '/';
+          while (relativePath.startsWith(pathWithSlash)) {
+            relativePath = relativePath.substring(pathWithSlash.length);
+            debugPrint('✅ ETAPA 3: Removido $pathWithSlash, restante: $relativePath');
+          }
+          
+          // Remover /elislecio do início (sem barra final)
+          if (relativePath.startsWith(cleanTemplatePath)) {
+            relativePath = relativePath.substring(cleanTemplatePath.length);
+            if (relativePath.startsWith('/')) {
+              relativePath = relativePath.substring(1);
+          }
+            debugPrint('✅ ETAPA 3: Removido $cleanTemplatePath, restante: $relativePath');
+          }
+          
+          // ETAPA 4: Remover segmento duplicado (ex: elislecio/elislecio/)
+          final lastSegment = cleanTemplatePath.split('/').where((s) => s.isNotEmpty).toList();
+          if (lastSegment.isNotEmpty) {
+            final segment = lastSegment.last; // Ex: elislecio
+            while (relativePath.startsWith('$segment/') || relativePath.startsWith('/$segment/')) {
+              relativePath = relativePath.replaceFirst(RegExp(r'^/?$segment/'), '/');
+              debugPrint('✅ ETAPA 4: Removido segmento $segment, restante: $relativePath');
+            }
+          }
         }
         
-        // ETAPA 5: Preparar base URL (remover barra final se houver)
+        // ETAPA 5: Limpar barras duplicadas e garantir que comece com /
+        relativePath = relativePath.replaceAll(RegExp(r'/+'), '/');
+        if (relativePath.startsWith('//')) {
+          relativePath = relativePath.substring(1);
+        }
+        if (!relativePath.startsWith('/')) {
+          relativePath = '/$relativePath';
+        }
+        debugPrint('✅ ETAPA 5: Caminho limpo: $relativePath');
+        
+        // ETAPA 6: Preparar base URL (remover barra final se houver)
         String baseUrl = templateNormalized;
         if (baseUrl.endsWith('/')) {
           baseUrl = baseUrl.substring(0, baseUrl.length - 1);
         }
         
-        // ETAPA 6: Concatenar: baseUrl + productUrl
-        affiliateUrl = '$baseUrl$productUrl';
+        // ETAPA 7: Concatenar: baseUrl + relativePath
+        affiliateUrl = '$baseUrl$relativePath';
+        debugPrint('✅ ETAPA 7: URL FINAL: $affiliateUrl');
+        debugPrint('═══════════════════════════════════════════════════════');
         
         debugPrint('✅ URL FINAL GERADA: $affiliateUrl');
         debugPrint('═══════════════════════════════════════════════════════');
@@ -988,57 +978,76 @@ class _ProductCardState extends State<ProductCard>
 
   /// Versão síncrona para limpar URL duplicada
   String _cleanDuplicateUrlSync(String url, String template) {
-    String cleanUrl = url;
+    String relativePath = url;
     final templateNormalized = template.trim();
     
-    // Remover TODAS as ocorrências do template do início
-    while (cleanUrl.startsWith(templateNormalized)) {
-      cleanUrl = cleanUrl.substring(templateNormalized.length);
-    }
-    
-    // Se ainda é URL completa, extrair apenas o caminho
-    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+    // ETAPA 1: Se é URL completa, extrair caminho primeiro
+    if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
       try {
-        final uri = Uri.parse(cleanUrl);
-        cleanUrl = uri.path + (uri.query.isNotEmpty ? '?${uri.query}' : '');
+        final uri = Uri.parse(relativePath);
+        relativePath = uri.path + (uri.query.isNotEmpty ? '?${uri.query}' : '');
       } catch (e) {
-        final match = RegExp(r'https?://[^/]+(/.*)').firstMatch(cleanUrl);
+        final match = RegExp(r'https?://[^/]+(/.*)').firstMatch(relativePath);
         if (match != null && match.group(1) != null) {
-          cleanUrl = match.group(1)!;
+          relativePath = match.group(1)!;
         }
       }
     }
     
-    // Remover duplicações do caminho
+    // ETAPA 2: Extrair caminho do template
+    String templatePath = '';
     try {
       final templateUri = Uri.parse(templateNormalized);
-      final templatePath = templateUri.path;
-      if (templatePath.isNotEmpty && cleanUrl.startsWith(templatePath)) {
-        cleanUrl = cleanUrl.substring(templatePath.length);
-      }
-      
-      final templateSegments = templatePath.split('/').where((s) => s.isNotEmpty).toList();
-      if (templateSegments.isNotEmpty) {
-        final lastSegment = templateSegments.last;
-        while (cleanUrl.startsWith('$lastSegment/') || cleanUrl.startsWith('/$lastSegment/')) {
-          cleanUrl = cleanUrl.replaceFirst(RegExp(r'^/?$lastSegment/'), '/');
-        }
-      }
+      templatePath = templateUri.path;
     } catch (e) {
       // Ignorar
     }
     
-    // Limpar barras e garantir que comece com /
-    cleanUrl = cleanUrl.replaceAll(RegExp(r'/+'), '/');
-    if (cleanUrl.startsWith('//')) cleanUrl = cleanUrl.substring(1);
-    if (!cleanUrl.startsWith('/')) cleanUrl = '/$cleanUrl';
+    // ETAPA 3: Remover caminho do template do início
+    if (templatePath.isNotEmpty && templatePath != '/') {
+      final cleanTemplatePath = templatePath.endsWith('/') 
+        ? templatePath.substring(0, templatePath.length - 1)
+        : templatePath;
+      
+      // Remover /elislecio/ do início
+      final pathWithSlash = cleanTemplatePath + '/';
+      while (relativePath.startsWith(pathWithSlash)) {
+        relativePath = relativePath.substring(pathWithSlash.length);
+      }
+      
+      // Remover /elislecio do início (sem barra)
+      if (relativePath.startsWith(cleanTemplatePath)) {
+        relativePath = relativePath.substring(cleanTemplatePath.length);
+        if (relativePath.startsWith('/')) {
+          relativePath = relativePath.substring(1);
+        }
+      }
+      
+      // Remover segmento duplicado
+      final lastSegment = cleanTemplatePath.split('/').where((s) => s.isNotEmpty).toList();
+      if (lastSegment.isNotEmpty) {
+        final segment = lastSegment.last;
+        while (relativePath.startsWith('$segment/') || relativePath.startsWith('/$segment/')) {
+          relativePath = relativePath.replaceFirst(RegExp(r'^/?$segment/'), '/');
+        }
+      }
+    }
     
-    // Preparar base e concatenar
+    // ETAPA 4: Limpar barras e garantir que comece com /
+    relativePath = relativePath.replaceAll(RegExp(r'/+'), '/');
+    if (relativePath.startsWith('//')) {
+      relativePath = relativePath.substring(1);
+    }
+    if (!relativePath.startsWith('/')) {
+      relativePath = '/$relativePath';
+    }
+    
+    // ETAPA 5: Preparar base e concatenar
     String baseUrl = templateNormalized;
     if (baseUrl.endsWith('/')) {
       baseUrl = baseUrl.substring(0, baseUrl.length - 1);
     }
     
-    return '$baseUrl$cleanUrl';
+    return '$baseUrl$relativePath';
   }
 }

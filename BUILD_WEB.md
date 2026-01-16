@@ -77,3 +77,4 @@ WishBox/
 - Para desenvolvimento local, use `flutter run -d chrome`
 
 
+

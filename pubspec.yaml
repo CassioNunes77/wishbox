@@ -29,6 +29,8 @@ dependencies:
   intl: ^0.19.0
   cached_network_image: ^3.3.1
   flutter_svg: ^2.0.9
+  uuid: ^4.3.3
+  url_launcher: ^6.2.5
   
   # Code Generation
   json_annotation: ^4.8.1

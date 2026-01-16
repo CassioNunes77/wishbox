@@ -90,9 +90,31 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   void _reuseSearch(Map<String, dynamic> search) {
-    // Navegar para home com os dados da pesquisa
-    context.go('/home');
-    // TODO: Preencher campos com os dados da pesquisa
+    // Construir query parameters para a página de sugestões
+    final queryParams = <String, String>{
+      'query': search['query'] ?? '',
+      'isSelfGift': (search['isSelfGift'] ?? false).toString(),
+      'minPrice': (search['minPrice'] ?? 0.0).toString(),
+      'maxPrice': (search['maxPrice'] ?? 1000.0).toString(),
+    };
+    
+    // Adicionar tipos de presente se houver
+    if (search['giftTypes'] != null && (search['giftTypes'] as List).isNotEmpty) {
+      queryParams['giftTypes'] = (search['giftTypes'] as List).join(',');
+    }
+    
+    // Adicionar relação se houver
+    if (search['relationType'] != null) {
+      queryParams['relationType'] = search['relationType'];
+    }
+    
+    // Adicionar ocasião se houver
+    if (search['occasion'] != null) {
+      queryParams['occasion'] = search['occasion'];
+    }
+    
+    // Navegar para sugestões com os parâmetros
+    context.go('/suggestions?${Uri(queryParameters: queryParams).query}');
   }
 
   String _formatDate(String dateString) {
