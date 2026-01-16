@@ -59,7 +59,6 @@ export class ApiService {
       console.log('=== ApiService: Backend returned error:', response.data.error);
       return [];
     } catch (error: any) {
-    } catch (error: any) {
       console.error('=== ApiService: Error:', error);
       console.error('=== ApiService: Error type:', error.constructor.name);
       console.error('=== ApiService: Error message:', error.message);
