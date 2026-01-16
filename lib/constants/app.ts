@@ -56,8 +56,9 @@ export const APP_CONSTANTS = {
   currencySymbol: 'R$',
 
   // Backend API
-  // Em produção, NEXT_PUBLIC_BACKEND_URL deve estar configurada no Netlify
+  // Em produção no Netlify, usa a função serverless automaticamente
+  // Em desenvolvimento local, pode usar backend separado ou Netlify Dev
   backendBaseUrl: typeof window !== 'undefined' 
-    ? (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000')
-    : (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'),
+    ? (process.env.NEXT_PUBLIC_BACKEND_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000'))
+    : (process.env.NEXT_PUBLIC_BACKEND_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000')),
 } as const;

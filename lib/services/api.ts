@@ -2,7 +2,11 @@ import axios from 'axios';
 import { Product } from '@/lib/types/product';
 import { APP_CONSTANTS } from '@/lib/constants/app';
 
-const API_BASE_URL = APP_CONSTANTS.backendBaseUrl;
+// Em produção no Netlify, usa a função serverless (relativa)
+// Em desenvolvimento, usa backend separado ou Netlify Dev
+const API_BASE_URL = typeof window !== 'undefined' && !APP_CONSTANTS.backendBaseUrl
+  ? '/api/search' // Usa função Netlify (relativa)
+  : APP_CONSTANTS.backendBaseUrl;
 
 export class ApiService {
   /**
@@ -24,7 +28,32 @@ export class ApiService {
       const backendUrl = envBackendUrl || API_BASE_URL;
       console.log('=== ApiService: Using backend URL:', backendUrl);
 
-      // Garantir que a URL não tenha barra no final e tenha https://
+      // Se não houver backendBaseUrl (produção Netlify), usar função serverless
+      if (!backendUrl || backendUrl === '') {
+        const apiUrl = '/api/search';
+        
+        const response = await axios.get(apiUrl, {
+          params: {
+            query: params.query,
+            limit: params.limit || 20,
+            ...(params.affiliateUrl && { affiliateUrl: params.affiliateUrl }),
+          },
+          timeout: 30000,
+        });
+
+        console.log('=== ApiService: Response status:', response.status);
+
+        if (response.data.success && response.data.products) {
+          const products = response.data.products.map((p: any) => this.parseProduct(p));
+          console.log('=== ApiService: Found', products.length, 'products');
+          return products;
+        }
+
+        console.log('=== ApiService: Backend returned error:', response.data.error);
+        return [];
+      }
+      
+      // URL absoluta (backend separado ou desenvolvimento)
       let baseUrl = backendUrl.trim();
       if (baseUrl.endsWith('/')) {
         baseUrl = baseUrl.slice(0, -1);

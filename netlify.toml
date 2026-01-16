@@ -1,9 +1,15 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  functions = "netlify/functions"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/api/search"
+  to = "/.netlify/functions/api-search"
+  status = 200
 
 [[redirects]]
   from = "/*"
