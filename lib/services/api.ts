@@ -28,9 +28,11 @@ export class ApiService {
       const backendUrl = envBackendUrl || API_BASE_URL;
       console.log('=== ApiService: Using backend URL:', backendUrl);
 
-      // Se não houver backendBaseUrl (produção Netlify), usar função serverless
-      if (!backendUrl || backendUrl === '') {
+      // Se não houver backendBaseUrl ou for string vazia (produção Netlify), usar função serverless
+      if (!backendUrl || backendUrl === '' || backendUrl === 'undefined') {
         const apiUrl = '/api/search';
+        
+        console.log('=== ApiService: Using Netlify Function:', apiUrl);
         
         const response = await axios.get(apiUrl, {
           params: {
